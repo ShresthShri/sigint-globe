@@ -21,3 +21,12 @@ export async function fetchSnapshots(
   if (!res.ok) throw new Error(`Failed to fetch snapshots: ${res.status}`);
   return res.json();
 }
+
+export async function fetchTimeline(): Promise<{
+  snapshot_ids: number[];
+  timestamps: string[];
+}> {
+  const res = await fetch(`${BASE_URL}/interference/timeline`);
+  if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
+  return res.json();
+}

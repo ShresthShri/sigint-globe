@@ -38,6 +38,7 @@ async def get_interference(
     end: datetime | None = Query(default=None),
     min_severity: float = Query(default=0.0),
     region: str | None = Query(default=None),
+    snapshot_id: int | None = Query(default=None),
     session: AsyncSession = Depends(get_session),
 ):
     stmt = (
@@ -45,7 +46,8 @@ async def get_interference(
         .join(CollectionSnapshot, InterferenceCell.snapshot_id == CollectionSnapshot.id)
         .where(InterferenceCell.severity >= min_severity)
     )
-
+    if snapshot_id:
+        stmt = stmt.where(InterferenceCell.snapshot_id == snapshot_id)
     if start:
         stmt = stmt.where(CollectionSnapshot.timestamp >= start)
     if end:
