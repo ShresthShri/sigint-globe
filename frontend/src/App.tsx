@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import HexLayer from "./components/HexLayer";
+import Globe from "./components/Globe";
 import TimeScrubber from "./components/TimeScrubber";
 import { fetchInterference, fetchTimeline } from "./api/client";
 import type { InterferenceCell } from "./types";
@@ -97,17 +95,7 @@ export default function App() {
           Loading...
         </div>
       )}
-      <MapContainer
-        center={[34.7, 33.5]}
-        zoom={6}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
-        <HexLayer cells={cells} />
-      </MapContainer>
+      <Globe cells={cells} />
       <TimeScrubber
         timestamps={timestamps}
         snapshotIds={snapshotIds}
