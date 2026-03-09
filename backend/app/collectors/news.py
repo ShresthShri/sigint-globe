@@ -26,19 +26,24 @@ logger = logging.getLogger(__name__)
 
 # Headlines must contain at least one of these to be stored.
 # Kept broad enough to catch EW activity but narrow enough to avoid noise.
-KEYWORDS = [
+# Two tiers of keywords:
+# - PRIMARY: directly about GPS/EW interference (always store)
+# - CONTEXT: conflict/military activity in monitored regions (store if region matches too)
+PRIMARY_KEYWORDS = [
     "gps", "gnss", "jamming", "spoofing", "electronic warfare",
     "navigation interference", "gps disruption", "signal jamming",
     "ew system", "radar jamming",
 ]
 
-# RSS feeds to poll. Mix of general news + defense-specific outlets.
-# feedparser handles Atom, RSS 2.0, etc. transparently.
+CONTEXT_KEYWORDS = [
+    "missile", "strike", "military", "air defense", "airspace",
+    "no-fly zone", "drone", "bombing", "air raid",
+]
+
+# RSS feeds — removed Reuters and Defense One (broken XML)
 FEEDS = [
-    {"name": "Reuters World", "url": "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best"},
     {"name": "BBC World", "url": "http://feeds.bbci.co.uk/news/world/rss.xml"},
     {"name": "Al Jazeera", "url": "https://www.aljazeera.com/xml/rss/all.xml"},
-    {"name": "Defense One", "url": "https://www.defenseone.com/rss/"},
     {"name": "The War Zone", "url": "https://www.thedrive.com/the-war-zone/feed"},
 ]
 
@@ -70,10 +75,27 @@ REGION_KEYWORDS = {
 
 
 def _match_keywords(text: str) -> list[str]:
-    """Return which GPS/EW keywords appear in the text. Empty list = no match."""
-    text_lower = text.lower()
-    return [kw for kw in KEYWORDS if kw in text_lower]
+    """Check text against both keyword tiers.
 
+    Returns matched keywords. Primary keywords always count.
+    Context keywords only count if the text also mentions a monitored region.
+    This prevents storing every generic "military" headline.
+    """
+    text_lower = text.lower()
+
+    # Primary keywords — always relevant
+    primary_hits = [kw for kw in PRIMARY_KEYWORDS if kw in text_lower]
+    if primary_hits:
+        return primary_hits
+
+    # Context keywords — only relevant if a monitored region is also mentioned
+    context_hits = [kw for kw in CONTEXT_KEYWORDS if kw in text_lower]
+    if context_hits:
+        region_name, _, _ = _match_region(text)
+        if region_name:
+            return context_hits
+
+    return []
 
 def _match_region(text: str) -> tuple[str | None, float | None, float | None]:
     """Try to associate text with a monitored region based on location keywords.
