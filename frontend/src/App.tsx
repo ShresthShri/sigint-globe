@@ -3,6 +3,7 @@ import Globe from "./components/Globe";
 import TimeScrubber from "./components/TimeScrubber";
 import { fetchInterference, fetchTimeline } from "./api/client";
 import type { InterferenceCell } from "./types";
+import EventPanel from "./components/EventPanel";
 
 export default function App() {
   const [cells, setCells] = useState<InterferenceCell[]>([]);
@@ -96,6 +97,7 @@ export default function App() {
         </div>
       )}
       <Globe cells={cells} />
+      <EventPanel />
       <TimeScrubber
         timestamps={timestamps}
         snapshotIds={snapshotIds}

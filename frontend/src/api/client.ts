@@ -30,3 +30,22 @@ export async function fetchTimeline(): Promise<{
   if (!res.ok) throw new Error(`Failed to fetch timeline: ${res.status}`);
   return res.json();
 }
+
+export interface EventData {
+  id: number;
+  timestamp: string;
+  source: string;
+  headline: string;
+  url: string | null;
+  summary: string | null;
+  lat: number | null;
+  lon: number | null;
+  region_name: string | null;
+  keywords_matched: string | null;
+}
+
+export async function fetchEvents(limit: number = 50): Promise<EventData[]> {
+  const res = await fetch(`${BASE_URL}/events?limit=${limit}`);
+  if (!res.ok) throw new Error(`Failed to fetch events: ${res.status}`);
+  return res.json();
+}

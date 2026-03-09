@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.health import router as health_router
 from app.api.interference import router as interference_router
 from app.api.snapshots import router as snapshots_router
+from app.api.events import router as events_router
 from app.config import settings
 from app.database import init_db
 from app.scheduler import collector, start_scheduler, stop_scheduler
@@ -51,7 +52,7 @@ app.add_middleware(
 app.include_router(health_router, tags=["health"])
 app.include_router(interference_router, tags=["interference"])
 app.include_router(snapshots_router, tags=["snapshots"])
-
+app.include_router(events_router, tags=["events"])
 
 @app.get("/")
 async def root():
